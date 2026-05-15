@@ -344,17 +344,20 @@ def build_overview_matrix(po_df, packed_df, blocked_df):
         [COLOURS, ["RQ", "CT", "BL"]], names=["Colour", "Metric"]
     )
     rows = pd.MultiIndex.from_tuples(ROW_ORDER, names=["Model", "Storage"])
-    mat = pd.DataFrame("", index=rows, columns=columns)
 
+    data = []
     for (family, storage) in ROW_ORDER:
+        row = []
         for colour in COLOURS:
             sku = (family, storage, colour)
             rq = rq_lookup.get(sku, None)
             ct = ct_lookup.get(sku, 0)
             bl = bl_lookup.get(sku, 0)
-            mat.loc[(family, storage), (colour, "RQ")] = rq if rq else "-"
-            mat.loc[(family, storage), (colour, "CT")] = ct
-            mat.loc[(family, storage), (colour, "BL")] = bl
+            row.append(rq if rq else "-")
+            row.append(ct)
+            row.append(bl)
+        data.append(row)
+    mat = pd.DataFrame(data, index=rows, columns=columns, dtype=object)
 
     return mat, rq_lookup, ct_lookup, bl_lookup
 
